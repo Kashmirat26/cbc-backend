@@ -1,35 +1,48 @@
 import Product from "../models/product.js"
 
-export function getProduct(req, res) {
-    Product.find().then(
-        (productList) => {
-            res.json({
-                list: productList
-            })
-        }
-    ).catch(
-        (err) => {
-            res.json({
-                message: "Error"
-            })
-        }
-    )
+// export function getProduct(req, res) {
+//     Product.find().then(
+//         (productList) => {
+//             res.json({
+//                 list: productList
+//             })
+//         }
+//     ).catch(
+//         (err) => {
+//             res.json({
+//                 message: "Error"
+//             })
+//         }
+//     )
+// }
+
+export async function getProduct(req, res) {
+    try {
+        const productList = await Product.find()
+        res.json({
+            list: productList
+        })
+    } catch (e) {
+        res.json({
+            message: "Error"
+        })
+    }
 }
 
 export function createProduct(req, res) {
 
     console.log(req.user)
 
-    if(req.user == null){
+    if (req.user == null) {
         res.json({
-            message : "You are not logged in"
+            message: "You are not logged in"
         })
         return
     }
 
-    if(req.user.type != "admin"){
+    if (req.user.type != "admin") {
         res.json({
-            message : "You are not an admin"
+            message: "You are not an admin"
         })
         return
     }
@@ -64,7 +77,7 @@ export function getProductByName(req, res) {
         (productList) => {
             if (productList.length == 0) {
                 res.json({
-                    message : "Product not found"
+                    message: "Product not found"
                 })
             } else {
                 res.json({

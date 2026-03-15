@@ -6,10 +6,12 @@ import studentRouter from "./routes/studentRouter.js";
 import productRouter from "./routes/productRouter.js";
 import userRouter from "./routes/userRouter.js"
 import jwt, { decode } from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config()
 
 const app = express();
 
-const mongoUrl = "mongodb+srv://Tharani:2004@cluster0.6wqfynb.mongodb.net/?appName=Cluster0";
+const mongoUrl = process.env.MONGO_DB_URI
 
 mongoose.connect(mongoUrl, {})
 
@@ -28,7 +30,7 @@ app.use(
         console.log(token)
 
         if (token != null) {
-            jwt.verify(token, "cbc-secret-key-7973", (error,
+            jwt.verify(token, process.env.SECRET, (error,
                 decoded) => {
                     if(!error){
                         console.log(decoded)
