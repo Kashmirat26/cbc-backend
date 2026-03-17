@@ -4,6 +4,8 @@ import mongoose from "mongoose";
 import userRouter from "./routes/userRouter.js"
 import jwt, { decode } from "jsonwebtoken";
 import dotenv from "dotenv";
+import productRouter from "./routes/productRouter.js";
+import orderRouter from "./routes/orderRouter.js";
 dotenv.config()
 
 const app = express();
@@ -23,7 +25,7 @@ app.use(
     (req, res, next) => {
         // console.log(req.header("Authorization"))
 
-        const token = req.header("Authprization")?.replace("Bearer ", "")
+        const token = req.header("Authorization")?.replace("Bearer ", "")
         console.log(token)
 
         if (token != null) {
@@ -40,6 +42,8 @@ app.use(
 )
 
 app.use("/api/users", userRouter)
+app.use("/api/products",productRouter)
+app.use("/api/orders", orderRouter)
 
 // app.get("/",
 //     (req,res) => {
