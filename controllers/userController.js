@@ -23,7 +23,6 @@ export function createUser(req, res) {
         }
     }
 
-
     newUserData.password = bcrypt.hashSync(newUserData.password, 10)
 
     const user = new User(newUserData)
@@ -54,13 +53,20 @@ export function loginUser(req, res) {
                         firstName : user.firstName,
                         lastName : user.lastName,
                         isBlocked : user.isBlocked,
-                        tupe : user.type,
+                        type : user.type,
                         profilePicture : user.profilePicture
                     },process.env.SECRET)
                     
                     res.json({
                         message : "User logged in",
-                        token : token
+                        token : token,
+                        user : {
+                            firstName : user.firstName,
+                            lastName : user.lastName,
+                            email : user.email,
+                            type : user.type,
+                            profilePicture : user.profilePicture
+                        }
                     })
                 }else{
                     res.json({

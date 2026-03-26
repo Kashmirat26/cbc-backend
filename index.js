@@ -6,9 +6,13 @@ import jwt, { decode } from "jsonwebtoken";
 import dotenv from "dotenv";
 import productRouter from "./routes/productRouter.js";
 import orderRouter from "./routes/orderRouter.js";
-dotenv.config()
+import dns from "dns";
+import cors from "cors";
 
+dotenv.config()
+dns.setDefaultResultOrder("ipv4first");
 const app = express();
+app.use(cors());
 
 const mongoUrl = process.env.MONGO_DB_URI
 
