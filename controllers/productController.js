@@ -2,8 +2,8 @@ import Product from "../models/product.js";
 import { isAdmin } from "./userController.js";
 
 export function createProduct(req, res) {
-     console.log(req.user)
-     
+    console.log(req.user)
+
     if (!isAdmin(req)) {
         res.json({
             message: "Please login as administrator to create products"
@@ -24,13 +24,13 @@ export function createProduct(req, res) {
     })
 }
 
-export function getProducts(req,res){
-    Product.find({}).then((products)=>{
+export function getProducts(req, res) {
+    Product.find({}).then((products) => {
         res.json(products)
     })
 }
 
-export function deleteProduct(req,res){
+export function deleteProduct(req, res) {
     if (!isAdmin(req)) {
         res.status(403).json({
             message: "Please login as administrator to delete products"
@@ -41,14 +41,55 @@ export function deleteProduct(req,res){
     const productId = req.params.productId
 
     Product.deleteOne(
-        {productId : productId}
-    ).then(()=>{
+        { productId: productId }
+    ).then(() => {
         res.json({
-            message : "Product deleted"
+            message: "Product deleted"
         })
-    }).catch((error)=>{
+    }).catch((error) => {
         res.status(403).json({
-            message : error
+            message: error
         })
     })
+}
+
+export function updateProduct(req, res) {
+    if (!isAdmin(req)) {
+        res.status(403).json({
+            message: "Please login as administrator to update products"
+        })
+        return
+    }
+
+    const productId = req.params.productId
+    const newProductData = req.body
+
+    Product.updateOne(
+        { productId: productId },
+        newProductData
+    ).then(() => {
+        res.json({
+            message: "Product updated",
+        })
+    }).catch((error) => {
+        res.status(403).json({
+            message: error
+        })
+    })
+}
+
+export async function getProductById(req, res) {
+    try {
+        const productId = req.params.productId
+
+        const product = await Product.findOne({
+            productId: productId
+        })
+
+        res.json(product)
+    } catch (e) {
+        res.status(500).json({
+            e
+        })
+    }
 }
