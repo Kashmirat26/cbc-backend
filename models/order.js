@@ -31,12 +31,10 @@ const orderSchema = mongoose.Schema({
         }
     ],
     date : {
-        type : Date,
-        required : true,
+        type : Date
     },
     paymentId : {
-        type : String,
-        required : true,
+        type : String
     },
     status : {
         type : String,
