@@ -2,6 +2,7 @@ import User from "../models/user.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import axios from "axios";
 dotenv.config()
 
 export function createUser(req, res) {
@@ -96,4 +97,71 @@ export function isCustomer(req){
         return false
     }
     return true
+}
+
+export async function googleLogin(req, res) {
+    const token = req.body.token;
+
+    try {
+        const response = await axios.get(
+            "https://www.googleapis.com/oauth2/v3/userinfo",
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        const email = response.data.email;
+
+        // check if user exists
+        let user = await User.findOne({ email });
+
+        if (user) {
+            const jwtToken = jwt.sign({
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                isBlocked: user.isBlocked,
+                type: user.type,
+                profilePicture: user.profilePicture
+            }, process.env.SECRET);
+
+            return res.json({
+                message: "User logged in",
+                token: jwtToken,
+                user: {
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    type: user.type,
+                    profilePicture: user.profilePicture
+                }
+            });
+        }
+
+        // create new user
+        user = new User({
+            email,
+            firstName: response.data.given_name,
+            lastName: response.data.family_name,
+            type: "customer",
+            password: "ffffff",
+            profilePicture: response.data.picture
+        });
+
+        await user.save();
+
+        res.json({
+            message: "User created",
+            user
+        });
+
+    } catch (e) {
+        console.log(e.response?.data || e.message);
+        res.status(500).json({
+            message: "Google login failed",
+            error: e.message
+        });
+    }
 }
