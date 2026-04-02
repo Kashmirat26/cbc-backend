@@ -93,3 +93,31 @@ export async function getProductById(req, res) {
         })
     }
 }
+
+export async function searchProducts(req, res) {
+    const query = req.params.query
+
+    try {
+        const products = await Product.find({
+           $or: [
+        {
+            productName: {
+                $regex: query,
+                $options: "i"
+            }
+        },
+        {
+            altNames: {
+                $regex: query,
+                $options: "i"
+            }
+        }
+    ]
+        })
+        res.json(products)
+    } catch (e) {
+        res.status(500).json({
+            message: e.message
+        })
+    }
+}

@@ -30,33 +30,35 @@ const orderSchema = mongoose.Schema({
             }
         }
     ],
-    date : {
-        type : Date
+    date: {
+        type: Date,
+        default: Date.now
     },
-    paymentId : {
-        type : String
+    paymentId: {
+        type: String
     },
-    status : {
-        type : String,
-        default : "preparing",
+    status: {
+        type: String,
+        enum: ["cancelled", "delivered", "completed", "paused", "pending"],
+        default: "pending"
     },
-    notes : {
-        type : String
+    notes: {
+        type: String
     },
-    name : {
-        type : String,
-        required : true,
+    name: {
+        type: String,
+        required: true,
     },
-    address : {
-        type : String,
-        required : true,
+    address: {
+        type: String,
+        required: true,
     },
-    phone : {
-        type : String,
-        required : true,
+    phone: {
+        type: String,
+        required: true,
     }
 })
 
-const Order = mongoose.model("orders",orderSchema);
+const Order = mongoose.model("orders", orderSchema);
 
 export default Order;

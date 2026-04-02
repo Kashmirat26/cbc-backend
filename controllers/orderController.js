@@ -1,10 +1,10 @@
 import Order from "../models/order.js";
 import Product from "../models/product.js";
-import { isCustomer } from "./userController.js";
+import { isAdmin, isCustomer } from "./userController.js";
 
 export async function createOrder(req, res) {
-    if (!isCustomer) {
-        res.json({
+    if (!isCustomer(req)) {
+        return res.json({
             message: "Please login as customer to create orders"
         })
     }
@@ -31,10 +31,9 @@ export async function createOrder(req, res) {
             })
 
             if (product == null) {
-                res.json({
+                return res.json({
                     message: "Product with id " + newOrderData.orderedItems[i].productId + " not found"
                 })
-                return
             }
 
             newProductArray[i] = {
@@ -56,7 +55,8 @@ export async function createOrder(req, res) {
             order: savedOrder
         })
     }
-    catch (error) {
+   catch (error) {
+        console.log("ORDER ERROR:", error)
         res.status(500).json({
             message: error.message
         })
@@ -69,7 +69,11 @@ export async function getOrders(req, res) {
             const orders = await Order.find({ email: req.user.email })
             res.json(orders)
             return;
-        } else {
+        } else if (isAdmin(req)) {
+            const orders = await Order.find({});
+            res.json(orders)
+            return;
+        }else {
             res.json({
                 message: "Please login to view orders"
             })
@@ -129,3 +133,37 @@ export async function getQuote(req, res) {
     }
 }
 
+export async function updateOrder(req, res) {
+    if (!isAdmin(req)) {
+        return res.status(403).json({
+            message: "Please login as admin"
+        });
+    }
+
+    try {
+        const orderId = req.params.orderId;
+        const { notes, status } = req.body;
+
+        const updatedOrder = await Order.findOneAndUpdate(
+            { orderId: orderId },
+            { notes, status },
+            { new: true } // returns updated doc
+        );
+
+        if (!updatedOrder) {
+            return res.status(404).json({
+                message: "Order not found"
+            });
+        }
+
+        res.json({
+            message: "Order updated",
+            order: updatedOrder
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+}
